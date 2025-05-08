@@ -20,7 +20,7 @@
 - SRAM leakage can dominate total chip leakage.
 - Switching capacitive bitlines and wordlines is costly in terms of energy.
 #figure(
-  image("../images/battery.png"),
+  image("images/battery.png"),
 )
 == Introduction - 6T Challenges at low voltage
 #set page(columns: 2)
@@ -32,7 +32,7 @@
 #quote["A bulk CMOS 65-nm SRAM reports a minimum
  operating voltage of 0.7 V"]
 #figure(
-  image("../images/6TSRAM.png"), caption: [6T SRAM - CMOS VLSI Design, A circuits and Systems Perspective], scope: "column"
+  image("images/6TSRAM.png"), caption: [6T SRAM - CMOS VLSI Design, A circuits and Systems Perspective], scope: "column"
 )
 
 == 10T SRAM Bitcell overview
@@ -46,7 +46,7 @@
 #colbreak()
 #v(20pt)
 #figure(
-  image("../images/schematic.svg", width: 110%),
+  image("images/schematic.svg", width: 110%),
   caption: [10T SRAM schematic]
 )
 == 10T Bitcell -Read Stability
@@ -59,21 +59,21 @@
 #colbreak()
 #v(20pt)
 #figure(
-  image("../images/schematic.svg", width: 110%),
+  image("images/schematic.svg", width: 110%),
   caption: [10T SRAM schematic]
 )
   
 == 10T Bitcell - Read Operation
 #set page(columns: 1)
 #figure(
-  image("../images/schematic_read_1.svg", width: 100%),
+  image("images/schematic_read_1.svg", width: 100%),
 )
 #set page(columns: 2)
 
 #pagebreak()
 #set page(columns: 1)
 #figure(
-  image("../images/schematic_read_2.svg", width: 100%),
+  image("images/schematic_read_2.svg", width: 100%),
 )
 #set page(columns: 2)
 
@@ -86,21 +86,21 @@
 #colbreak()
 #v(20pt)
 #figure(
-  image("../images/schematic.svg", width: 110%),
+  image("images/schematic.svg", width: 110%),
   caption: [10T SRAM schematic]
 )
 
 == 10T Bitcell - Write Operation
 #set page(columns: 1)
 #figure(
-  image("../images/schematic_write.svg", width: 100%),
+  image("images/schematic_write.svg", width: 100%),
 )
 #set page(columns: 2)
 
 == Simulation - Read and Write Signals
 #set page(columns: 1)
 #figure(
-  image("../images/sram_vdd_0.6.svg", width: 70%),
+  image("images/sram_vdd_0.6.svg", width: 70%),
 )
 #set page(columns: 2)
 
@@ -111,7 +111,7 @@
 - Resolving the reading problem present in 6T design due to degraded RSNM 
 #colbreak()
 #figure(
-  image("../images/Leakage_paper_img.png")
+  image("images/Leakage_paper_img.png")
 )
 
 #pagebreak()
@@ -121,7 +121,7 @@
 - use case specific 
 #colbreak()
 #figure(
-  image("../images/freq_vs_voltage.png")
+  image("images/freq_vs_voltage.png")
 )
 
 == Test chip result
@@ -135,29 +135,29 @@
 == Simulation Results - Hold SNM (TT)
 #set page(columns: 2)
 #figure(
-  image("../images/butterfly_hold_0.6.svg"),
+  image("images/butterfly_hold_0.6.svg"),
 )
 #colbreak()
 #figure(
-  image("../images/butterfly_hold_0.3.svg"),
+  image("images/butterfly_hold_0.3.svg"),
 )
 
 == Simulation Results - Read SNM (TT)
 #figure(
-  image("../images/butterfly_read_0.6.svg"),
+  image("images/butterfly_read_0.6.svg"),
 )
 #colbreak()
 #figure(
-  image("../images/butterfly_read_0.3.svg"),
+  image("images/butterfly_read_0.3.svg"),
 )
 
 == Simulation Results - Read SNM Corners
 #figure(
-  image("../images/6t_snm.svg"),
+  image("images/6t_snm.svg"),
 )
 #colbreak()
 #figure(
-  image("../images/10t_snm.svg"),
+  image("images/10t_snm.svg"),
 )
 
 == Conclusion
@@ -175,6 +175,6 @@
 #colbreak()
 #v(20pt)
 #figure(
-  image("../images/schematic.svg", width: 110%),
+  image("images/schematic.svg", width: 110%),
   caption: [10T SRAM schematic]
 )
