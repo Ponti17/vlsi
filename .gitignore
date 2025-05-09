@@ -1,2 +1,5 @@
 # Typst Output
 *.pdf
+
+# Ignore Vivado project
+vivado/
