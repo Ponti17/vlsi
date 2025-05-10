@@ -24,6 +24,7 @@ architecture behavior of tb_izhikevich is
     signal clk          : std_logic := '0';
     signal re           : std_logic := '0';
     signal en           : std_logic := '0';
+    signal rst          : std_logic := '0';
     signal sig_label    : std_logic := '0';
     signal current      : signed(WIDTH downto 0);
     signal e            : unsigned(10 downto 0);
@@ -40,6 +41,7 @@ begin
         i_clk       => clk,
         i_re        => re,
         i_en        => en,
+        i_rst       => rst,
         i_label     => sig_label,
         i_current   => current,
         o_e         => e,
@@ -52,7 +54,12 @@ begin
     PROC_SEQUENCER : process
     begin
 
+        -- reset
+        rst         <= '1';
+        wait for 10 * clk_period;
+
         -- initialize inputs
+        rst         <= '0';
         current     <= to_signed(800, current'length);
         re          <= '1';
         en          <= '1';

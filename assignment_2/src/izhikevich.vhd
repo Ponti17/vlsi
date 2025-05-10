@@ -11,6 +11,23 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--  Instantiation Template:
+--  INST_NAME : entity work.IZH_CORE
+--  generic map (
+--      WIDTH       =>
+--  )
+--  port map (
+--      i_clk       =>
+--      i_re        =>
+--      i_en        =>
+--      i_rst       =>
+--      i_label     =>
+--      i_current   =>
+--      o_e         =>
+--      o_spike     =>
+--      o_voltage   =>
+--  );
+
 entity IZH_CORE is
     generic (
         WIDTH : integer := 12                     -- Bit width of signals
@@ -19,6 +36,7 @@ entity IZH_CORE is
         i_clk       : in std_logic;
         i_re        : in std_logic;               -- read enable
         i_en        : in std_logic;               -- enable
+        i_rst       : in std_logic;               -- reset
         i_label     : in std_logic;               -- ???
         i_current   : in signed(WIDTH downto 0);  -- input current
         o_e         : out unsigned(10 downto 0);  -- whaat the fuck is 'e'
@@ -33,12 +51,12 @@ architecture Behavioral of IZH_CORE is
     type signed_array_2 is array (0 to 1) of signed(10 downto 0);
 
     signal c, d, th                         : signed(WIDTH downto 0);
-    signal i, i_in, v_n, v_n_1, u_n, u_n_1  : signed(WIDTH downto 0)    := (others => '0'); 
+    signal i, i_in, v_n, v_n_1, u_n, u_n_1  : signed(WIDTH downto 0);
     signal v, temp1, temp2, temp3, temp4    : signed(WIDTH downto 0);
-    signal e_n, e_n_1                       : signed(10 downto 0)       := (others => '0');
+    signal e_n, e_n_1                       : signed(10 downto 0);
     signal spike                            : std_logic;
-    signal i_reg, v_reg, u_reg              : signed_array              := (others => (others => '0'));
-    signal e_reg                            : signed_array_2            := (others => (others => '0'));
+    signal i_reg, v_reg, u_reg              : signed_array;
+    signal e_reg                            : signed_array_2;
 
 begin
 
@@ -50,13 +68,16 @@ begin
     c       <= to_signed(-650, WIDTH+1);
     d       <= to_signed(20, WIDTH+1);
     th      <= to_signed(300, WIDTH+1);
-    i_in    <= i_current;
+    i_in    <= (others => '0') when i_rst = '1' else i_current;
 
     -- i_current register
     process(i_clk)
     begin
         if rising_edge(i_clk) then
-            if (i_en = '1') then
+            if (i_rst = '1') then
+                i_reg   <= (others => (others => '0'));
+                i       <= (others => '0');
+            elsif (i_en = '1') then
                 i_reg(0) <= resize(i_in, i_reg(0)'length);
                 i_reg(1) <= i_reg(0);
                 i        <= i_reg(1);
@@ -68,7 +89,10 @@ begin
     process(i_clk)
     begin
         if rising_edge(i_clk) then
-            if (i_en = '1') then
+            if (i_rst = '1') then
+                v_reg   <= (others => (others => '0'));
+                v_n     <= (others => '0');
+            elsif (i_en = '1') then
                 v_reg(0) <= v_n_1;
                 v_reg(1) <= v_reg(0);
                 v_n      <= v_reg(1);
@@ -80,7 +104,10 @@ begin
     process(i_clk)
     begin
         if rising_edge(i_clk) then
-            if (i_en = '1') then
+            if (i_rst = '1') then
+                u_reg   <= (others => (others => '0'));
+                u_n     <= (others => '0');
+            elsif (i_en = '1') then
                 u_reg(0) <= u_n_1;
                 u_reg(1) <= u_reg(0);
                 u_n      <= u_reg(1);
@@ -92,7 +119,9 @@ begin
     process(i_clk)
     begin
         if rising_edge(i_clk) then
-            if (i_en = '1') then
+            if (i_rst = '1') then
+                v <= (others => '0');
+            elsif (i_en = '1') then
                 v <= resize(
                     shift_right(v_n * v_n, 8) +
                     shift_left(v_n, 2) +
@@ -107,7 +136,8 @@ begin
     -- v conditions
     spike <= '1' when v > th else '0';
 
-    v_n_1 <= c when i_re  = '1' else
+    v_n_1 <= (others => '0') when i_rst = '1' else
+             c when i_re  = '1' else
              v when spike = '0' else
              c when spike = '1' else
              (others => '0');
@@ -121,18 +151,22 @@ begin
     temp4 <= temp3 + d;
 
     -- u conditions
-    u_n_1 <= temp3 when i_re  = '1' else
+    u_n_1 <= (others => '0') when i_rst = '1' else
+             temp3 when i_re  = '1' else
              temp3 when spike = '0' else
              temp4 when spike = '1' else
              (others => '0');
 
-    o_voltage <= v;
+    o_voltage <= (others => '0') when i_rst = '1' else v;
 
     -- e param
     process(i_clk)
     begin
         if rising_edge(i_clk) then
-            if (i_en = '1') then
+            if (i_rst = '1') then
+                e_reg   <= (others => (others => '0'));
+                e_n     <= (others => '0');
+            elsif (i_en = '1') then
                 e_reg(0) <= e_n_1;
                 e_reg(1) <= e_reg(0);
                 e_n      <= e_reg(1);
@@ -143,7 +177,9 @@ begin
     process(i_clk)
     begin
         if rising_edge(i_clk) then
-            if (i_re = '1') then
+            if (i_rst = '1') then
+                e_n_1 <= (others => '0');
+            elsif (i_re = '1') then
                 e_n_1 <= to_signed(0, e_n_1'length);
             elsif (i_label = '0' and spike = '1') then
                 if (e_n_1 < to_signed(800, e_n_1'length)) then
@@ -153,6 +189,6 @@ begin
         end if;
     end process;
 
-    o_e <= unsigned(e_n_1);
+    o_e <= (others => '0') when i_rst = '1' else unsigned(e_n_1);
 
 end Behavioral;
