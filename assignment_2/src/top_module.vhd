@@ -18,7 +18,7 @@ end top_module;
 
 architecture Behavioral of top_module is
 
-    signal internal_clk          : std_logic;  -- internal clock signal
+    signal internal_clk          : std_logic := '0';  -- internal clock signal
     signal clk_divider_counter   : integer := 0;  -- clock divider counter
 
     signal btn_latch : std_logic_vector(3 downto 0) := (others => '0');  -- latch for button inputs 
@@ -27,17 +27,17 @@ begin
 
     led <= btn_latch;  -- output the latched button states to LEDs
 
-    button_latch : process(btn)
+    button_latch : process(sysclk)
     begin
-        if btn /= "0000" then  -- check if any button is pressed
+        if rising_edge(sysclk) then
             for i in 0 to 3 loop
                 if btn(i) = '1' then
-                    btn_latch(i) <= not btn_latch(i);  -- toggle the latch state
+                    btn_latch(i) <= not btn_latch(i);  -- toggle latch
                 end if;
             end loop;
-
         end if;
     end process button_latch;
+
 
     clock_divider : process(sysclk)
     begin
