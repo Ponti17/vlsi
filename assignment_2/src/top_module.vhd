@@ -9,7 +9,7 @@ entity top_module is
 -- Top-level module for the Izhikevich neuron model
 -- port are named using the constraints file
     Port (
-        sysclk : in  std_logic;                     -- system clock
+        sysclk : in  std_logic;                     -- system clock // check for constraints file -period 125MHz/8.00 | 100MHz/10.00
         sw     : in  std_logic_vector(3 downto 0);  -- switch inputs
         btn    : in  std_logic_vector(3 downto 0);  -- button inputs
         led    : out std_logic_vector(3 downto 0)   -- LED outputs
@@ -20,7 +20,24 @@ architecture Behavioral of top_module is
 
     signal internal_clk          : std_logic;  -- internal clock signal
     signal clk_divider_counter   : integer := 0;  -- clock divider counter
+
+    signal btn_latch : std_logic_vector(3 downto 0) := (others => '0');  -- latch for button inputs 
+
 begin
+
+    led <= btn_latch;  -- output the latched button states to LEDs
+
+    button_latch : process(btn)
+    begin
+        if btn /= "0000" then  -- check if any button is pressed
+            for i in 0 to 3 loop
+                if btn(i) = '1' then
+                    btn_latch(i) <= not btn_latch(i);  -- toggle the latch state
+                end if;
+            end loop;
+
+        end if;
+    end process button_latch;
 
     clock_divider : process(sysclk)
     begin
