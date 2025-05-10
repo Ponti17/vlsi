@@ -13,7 +13,7 @@ use ieee.numeric_std.all;
 
 entity IZH_CORE is
     generic (
-        WIDTH : integer                           -- Bit width of signals
+        WIDTH : integer := 12                     -- Bit width of signals
     );
     port (
         i_clk       : in std_logic;
