@@ -27,42 +27,58 @@ architecture Behavioral of IZH_TOP is
     signal en   : std_logic;
     signal rst  : std_logic;
 
-    signal btn_rdy : std_logic;
-    signal counter : integer range 0 to 10000000;
-    signal seq_en  : std_logic;
-    signal spike_out : std_logic;
+    signal btn_rdy  : std_logic := '1';
+    signal counter  : integer range 0 to 10000000 := 0;
+    signal seq_en   : std_logic := '0';
+    signal seq_start: std_logic := '0';
+    signal spike_out: std_logic;
 
-    signal clk : std_logic;
-
-    signal cnt_var : integer;
+    signal clk      : std_logic;
+    signal cnt_var  : integer := 0; 
+    signal clk_cnt  : integer range 0 to 100;
 
 begin
 
+    -- CLK_DIVIDER : process(sysclk)
+    -- begin
+    --     if rising_edge(sysclk) then
+    --         if (clk_cnt < 100) then
+    --             clk_cnt <= clk_cnt + 1;
+    --             clk     <= '1';
+    --         elsif (clk_cnt < 200) then
+    --             clk_cnt <= clk_cnt + 1;
+    --             clk     <= '0';
+    --         else
+    --             clk_cnt <= 0;
+    --         end if;
+    --     end if;
+    -- end process;
     clk <= sysclk;
 
-    -- clk_out <= sysclk when (seq_en = '1') else '0';
-    jc <= (sysclk & sysclk & sysclk & sysclk & sysclk & sysclk & sysclk & sysclk);
-    jd <= (spike_out & spike_out & spike_out & spike_out & spike_out & spike_out & spike_out & spike_out);
+    jc <= (others => clk);
+    jd <= (others => spike_out);
 
-
+    -- Sequencer for reset, re, en signals
     SEQUENCER : process(clk)
     begin
-        if (rising_edge(clk)) then
-            if (seq_en = '1') then
-
-                if (cnt_var < 10) then
+        if rising_edge(clk) then
+            if seq_start = '1' then
+                cnt_var <= 0;
+                seq_en  <= '1';
+            elsif seq_en = '1' then
+                if cnt_var < 10 then
                     rst <= '1';
                     re  <= '0';
                     en  <= '0';
-                elsif (cnt_var >= 10) and (cnt_var < 20) then
+                elsif cnt_var >= 10 and cnt_var < 20 then
                     rst <= '0';
                     re  <= '1';
                     en  <= '1';
-                elsif (cnt_var >= 20) and (cnt_var < 30) then
+                elsif cnt_var >= 20 and cnt_var < 30 then
                     rst <= '0';
                     re  <= '0';
                     en  <= '1';
-                elsif (cnt_var >= 30) and (cnt_var < 40) then
+                elsif cnt_var >= 30 and cnt_var < 40 then
                     seq_en <= '0';
                 end if;
 
@@ -71,24 +87,32 @@ begin
         end if;
     end process;
 
+    -- Button debounce and sequencer start pulse
     BTN_SEQUENCER : process(clk)
     begin
-        if (rising_edge(clk)) then
-            if (btn_0 = '1') and (btn_rdy = '1') then
-                counter <= 0;
-                seq_en  <= '1';
-            end if;
+        if rising_edge(clk) then
+            seq_start <= '0'; -- Default no pulse
 
-            if (counter < 5) then
-                counter <= counter + 1;
-                btn_rdy <= '0';
+            if btn_0 = '1' then
+                if btn_rdy = '1' then
+                    seq_start <= '1'; -- Pulse to start sequence
+                    btn_rdy   <= '0';
+                    counter   <= 0;
+                end if;
             else
-                btn_rdy <= '1';
+                -- Button released, debounce timer
+                if btn_rdy = '0' then
+                    if counter < 10000000 then
+                        counter <= counter + 1;
+                    else
+                        btn_rdy <= '1';  -- Debounce done
+                    end if;
+                end if;
             end if;
-
         end if;
     end process;
 
+    -- Izhikevich neuron core instantiation
     IZH_CORE : entity work.IZH_CORE
     generic map (
         WIDTH       => 12
