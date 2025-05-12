@@ -13,6 +13,9 @@ use ieee.numeric_std.all;
 use ieee.math_real.all;
 use std.env.finish;
 
+use ieee.std_logic_textio.all;
+use std.textio.all;
+
 entity tb_izhikevich is
 end tb_izhikevich;
 
@@ -32,6 +35,30 @@ architecture behavior of tb_izhikevich is
     signal voltage      : signed(WIDTH downto 0);
 
 begin
+
+    WRITE_PROCESS : process(clk)
+        file result     : text open write_mode is ("results.csv");
+        variable lo     : line;
+    begin
+        write(lo, clk);
+        write(lo, ',');
+        write(lo, re);
+        write(lo, ',');
+        write(lo, en);
+        write(lo, ',');
+        write(lo, rst);
+        write(lo, ',');
+        write(lo, sig_label);
+        write(lo, ',');
+        write(lo, current);
+        write(lo, ',');
+        write(lo, e);
+        write(lo, ',');
+        write(lo, spike);
+        write(lo, ',');
+        write(lo, voltage);
+        writeline(result, lo);
+    end process;
 
     IZH_DUT : entity work.IZH_CORE
     generic map (
